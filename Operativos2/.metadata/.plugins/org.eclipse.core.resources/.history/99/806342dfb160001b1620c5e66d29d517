@@ -1,0 +1,338 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Principal {
+	private static SectorRam []ram;
+	private static final int TAMANIO_RAM = 30;
+	private static Scanner scanner = new Scanner(System.in);
+	private static ArrayList<Hueco> huecos;
+	
+	public static void main(String []args) {
+		boolean FIN = false;
+		IniciarValores();
+		int espaciosUsados = ActualizarEspacios();
+		
+		while(!FIN) {
+			switch(Menu()) {
+				case 1:
+					if(IngresarDato(espaciosUsados))
+						espaciosUsados = ActualizarEspacios();
+					break;
+				case 2:
+					EliminarValores();
+					espaciosUsados = ActualizarEspacios();
+					break;
+				case 3:
+					MostrarRam(espaciosUsados);
+					break;
+				case 4:
+					Compactacion();
+					break;
+				case 5:
+					//Añadir Mapa Bits
+					break;
+				case 6:
+					MuestraEspacios();
+					break;
+				case 7:
+					MapaBit();
+					break;	
+				case 8:
+					MostrarRamLista();
+					break;	
+				case 0:
+					FIN = true;
+					return;
+			}
+			Pausa();
+		}
+		
+	}
+	
+	//Imprime menú y verifica que la entrada sea válida
+	private static int Menu() {
+		int dec = -1;
+		
+		do {
+		System.out.println("* * * * M E N U * * * *");
+		System.out.println("1: Ingresar dato a RAM");
+		System.out.println("2: Eliminar dato de RAM");
+		System.out.println("3: Mostrar RAM");
+		System.out.println("4: Compactación");
+		System.out.println("5: Mapa de Bits");
+		System.out.println("6: Lista Disponibles");
+		System.out.println("7: Mapa de Bits");
+		System.out.println("8: Mostrar en Lista");
+		System.out.println("0: Salir\n");
+		System.out.println("Seleccione una opción: ");
+		try {
+			dec = Integer.parseInt(scanner.next());
+		}catch(Exception e) {
+			dec = -1;
+		}
+		}while(dec < 0 || dec > 8);
+		return dec;
+	}
+	
+	//Elimina los valores asociados al proceso especificado
+	private static void EliminarValores() {
+		int proceso;
+		System.out.println("Ingrese el número del Proceso a eliminar: ");
+		if((proceso = VerificaDatoIngresado()) > 0) {
+			for(int i = 0; i < ram.length; i++) {
+				if(ram[i].getProceso() == proceso)
+					ram[i].Limpia();
+			}
+		}
+	}
+	
+	//Inicializa la RAM vacia y la lista para control de huecos
+	private static void IniciarValores() {
+		ram = new SectorRam[TAMANIO_RAM];
+		huecos = new ArrayList<Hueco>();
+		for(int i = 0; i < ram.length; i++)
+			ram[i] = new SectorRam();
+	}
+	
+	//Imprime el contenido de la RAM así como detalles de su espacio
+	private static void MostrarRam(int espaciosUsados) {
+		System.out.println("\n\nRAM total " + TAMANIO_RAM +" Bloques:\tBloques usados:" + espaciosUsados + "\tBloques libres:" + (TAMANIO_RAM - espaciosUsados));
+		MuestraEspacios();
+		
+		for(int i = 0; i < ram.length; i++)
+			if(i < 10)
+				System.out.print("[ " + i + "]");
+			else
+				System.out.print("[" + i + "]");
+		System.out.print("\n");
+		for(SectorRam r : ram)
+			if(r.getEstado())
+				if(r.getProceso() < 10)
+					System.out.print("[ " + r.getProceso() + "]");
+				else
+					System.out.print("[" + r.getProceso() + "]");
+			else
+				System.out.print("[ 0]");
+	}
+	
+	//Controla el fjujo en el que se hace la validación de los valores
+	private static boolean IngresarDato(int usado) {
+		int proceso,tamanio;
+		if((proceso = VerificaProcesoExistente()) >= 1) { 
+			if((tamanio = VerificaTamanioProceso(usado)) >= 1) { //si entra
+				SeleccionaLugarInsertar(proceso, tamanio);
+			}else {
+				System.out.println("No se puede guardar el proceso " + proceso + " el tamaño es mayor al espacio disponible");
+				return false;
+			}
+		}else { //error número de proceso
+			System.out.println("No se puede guardar el proceso " + proceso);
+			return false;
+		}
+		return true;
+	}
+	
+	private static void SeleccionaLugarInsertar(int proceso, int tamanio) {
+		int dec;
+		System.out.println("Selecciona modo de guardado\n");
+		System.out.println("1: Inicio");
+		System.out.println("2: Final");
+		if((dec = VerificaDatoIngresado()) > 0){
+			switch(dec) {
+				case 1:
+					InsertarDatoValido(proceso,tamanio);//Inserta en el primer hueco encontrado
+					break;
+				case 2:
+					InsertarDatoFinal(proceso,tamanio);
+					break;
+					default:
+						System.out.println("\n\nOpción inválida");
+			}
+		}
+	} 
+	
+	private static void InsertarDatoFinal(int proceso, int tamanio) {
+		if(InsertarEnHuecoFinal(proceso,tamanio))
+			return;
+		//Hacer espacio para el valor a insertar
+		Compactacion();
+		InsertarEnHuecoFinal(proceso,tamanio);
+	}
+	
+	private static boolean InsertarEnHuecoFinal(int proceso, int tamanio) {
+		int limite;
+		
+		for(int i = huecos.size()-1; i >= 0; i--) {
+			if(huecos.get(i).getTamanio() >= tamanio) {
+				limite = huecos.get(i).getFinal() - tamanio;
+				for(int j = huecos.get(i).getFinal(); j > limite; j--) {
+					ram[j].setValores(proceso);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//Inserta en "la RAM" los valores especificados 
+	private static void InsertarDatoValido(int proceso, int tamanio) {
+		if(InsertarEnHueco(proceso,tamanio))
+			return;
+		//Hacer espacio para el valor a insertar
+		Compactacion();
+		InsertarEnHueco(proceso,tamanio);
+	}
+	
+	//Inserta en algún hueco disponible el proceso indicado
+	private static boolean InsertarEnHueco(int proceso, int tamanio) {
+		int limite;
+		for(int i = 0; i < huecos.size(); i++) {
+			if(huecos.get(i).getTamanio() >= tamanio) { //insertar en hueco
+				limite = huecos.get(i).getInicio() + tamanio;
+				for(int j = huecos.get(i).getInicio(); j < limite; j++) {
+					ram[j].setValores(proceso);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//Agrupa los espacios en uno solo para aprovechar memoria
+	private static void Compactacion() {
+		int inicio = -1;
+		
+		for(int i = 0; i < ram.length; i++) {
+			if(!ram[i].getEstado()) { //false
+				if(inicio == -1) {
+					inicio = i;
+				}
+			}else { //true
+				if(inicio != -1) { //hueco
+					ram[inicio].setValores(ram[i].getProceso());
+					ram[i].Limpia();
+					inicio++;
+				}
+			}
+		}
+		ActualizarEspacios();
+	}
+
+	//Verifica que el número del proceso no esté ya ingresado en la ram y que ese valor sea uno válido
+	private static int VerificaProcesoExistente() {
+		int proceso;
+		System.out.println("Ingrese el número del Proceso: ");
+		if((proceso = VerificaDatoIngresado()) > 0)
+			for(SectorRam r : ram)
+				if(r.getEstado() && r.getProceso() == proceso) //ya existe
+					proceso = -1;
+		return proceso;
+	}
+	
+	//Verifica que el tamaño del proceso sea valido
+	private static int VerificaTamanioProceso(int usado) {
+		int tamanio;
+		System.out.println("Ingrese el tamaño del Proceso: ");
+		if((tamanio = VerificaDatoIngresado()) > 0) {
+			if(TAMANIO_RAM - usado >= tamanio)
+				return tamanio;
+			else {
+				return -1;
+			}
+		}
+		return -1;
+	}
+	
+	//Verifica que el dato ingresado sea número entero
+	private static int VerificaDatoIngresado() {
+		int dato;
+		try {
+			dato = Integer.parseInt(scanner.next());
+		}catch(Exception e) {
+			dato = -1;
+			System.out.println("Valor inválido");
+		}
+		return dato;
+	}
+	
+	//Almacena en un arreglo los huecos disponibles y regresa el total de espacios usados
+	//Limpia la lista cada vez que es modificado el espacio
+	private static int ActualizarEspacios() {
+		int inicio = -1, fin = -1, espacios = 0, huecosActuales = huecos.size();
+		
+		for(int i = 0; i < huecosActuales; i++) {
+			huecos.remove(0);
+		}
+		
+		for(int i = 0; i < ram.length; i++) {
+			if(!ram[i].getEstado()) {
+				espacios++;
+				if(inicio == -1) {
+					inicio = i;
+				}else {
+					fin = i;
+				}
+			}else if(inicio != -1){
+				if(fin == -1)
+					fin = i - 1;
+				huecos.add(new Hueco(inicio, fin));
+				inicio = fin = -1;
+			}
+		}
+		
+		if(inicio != -1)
+			huecos.add(new Hueco(inicio, fin));
+		return TAMANIO_RAM - espacios;
+	}
+	
+	//Congela la pantalla para ver los datos obtenidos
+	private static void Pausa() {
+		System.out.print("\n\n0 para continuar:");
+		scanner.next();
+	}
+	
+	//Imprime los huecos existentes, Inicio - Final : Tamaño
+	private static void MuestraEspacios() {
+		for(Hueco h : huecos) {
+			System.out.println("Inicio " + h.getInicio() + " - Final " + h.getFinal() + " : Total " + h.getTamanio());
+		}
+	}
+	
+	//Imprime la RAM como mapa de bits 
+	private static void MapaBit() { //8 pos por fila
+		System.out.print("* * * M A P A   D E   B I T S * * *");
+		for(int i = 0; i < ram.length; i++) {
+			if( i != 0 && ((i % 8) == 0))
+				System.out.print("\n");
+				if(ram[i].getEstado())
+					System.out.print("1 ");
+				else
+					System.out.print("0 ");
+		}
+	}
+	
+	//Imprime la RAM como una lista de procesos
+	private static void MostrarRamLista() {
+		int pos = -1;
+		for(int i = 0; i < ram.length; i++) {
+			if(ram[i].getEstado()) {
+				if(ram[i].getProceso() != pos) {
+					if(pos != -1)
+					/*if(i == 0) {
+						pos = ram[i].getProceso();
+						System.out.print("--> [" + i + "] " + pos);
+					}else {
+						System.out.print(" [" + (i-1) + "] --> ");
+					}*/
+					System.out.print(" [" + (i-1) + "] --> ");
+					pos = ram[i].getProceso();
+					System.out.print("--> [" + i + "] " + pos);
+				}
+				if(i == ram.length-1) {
+					System.out.print("--> [" + i + "] ");
+				}
+			}
+		}
+	}
+	
+}

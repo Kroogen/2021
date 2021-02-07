@@ -1,0 +1,13 @@
+package ui;
+
+import javax.swing.JFrame;
+
+public class PantallaPrincipal extends JFrame{
+
+	PantallaPrincipal(){
+		super("Proyecto RAM");
+		this.setVisible(true);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
+	
+}

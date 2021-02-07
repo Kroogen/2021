@@ -1,0 +1,304 @@
+<!DOCTYPE HTML>
+<html lang="es">
+<head>
+	<meta charset="UTF-8" />
+	<title>Aprende a sumar</title>
+</head>
+
+<body background="Fondo.png" style="margin: 20 auto; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+
+	<form style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+		<img src="Signos/btnMezclar.png" style="width:30%;" onclick="pressMezcla()">
+		<img src="Signos/btnVerificar.png" style="width:30%;" onclick="pressVerifica()">
+		<img src="Signos/btnResultado.png" style="width:30%;" onclick="pressMuestraResultado()">
+	</form>
+
+	<form style="width: 95%; height: 80%; margin-top: 5%">
+			<img id="posSumandoUno" src="Signos/punto.png" style="width:15.83%;">
+			<img id="posSumaSigno" src="Signos/masmenos.png" style="width:15.83%;">
+			<img id="posSumandoDos" src="Signos/punto.png" style="width:15.83%;">
+			<img src="Signos/igual.png" style="width:15.83%;">
+			<img id="posResultadoSigno" src="Signos/punto.png" style="width:15.83%;">
+			<img id="posResultadoNumero" src="Signos/duda.png" style="width:15.83%;">
+	</form>
+
+	<form style="margin-top: 7%">
+		<img src="Signos/menos.png" style="width:6%;" onclick="pressMenos()">
+		<img src="Signos/mas.png" style="width:6%;" onclick="pressMas()">
+		<img src="Signos/cero.png" style="width:6%;" onclick="pressCero()">
+		<img src="Signos/uno.png" style="width:6%;" onclick="pressUno()">
+		<img src="Signos/dos.png" style="width:6%;" onclick="pressDos()">
+		<img src="Signos/tres.png" style="width:6%;" onclick="pressTres()">
+		<img src="Signos/cuatro.png" style="width:6%;" onclick="pressCuatro()">
+		<img src="Signos/cinco.png" style="width:6%;" onclick="pressCinco()">
+		<img src="Signos/seis.png" style="width:6%;" onclick="pressSeis()">
+		<img src="Signos/siete.png" style="width:6%;" onclick="pressSiete()">
+		<img src="Signos/ocho.png" style="width:6%;" onclick="pressOcho()">
+		<img src="Signos/nueve.png" style="width:6%;" onclick="pressNueve()">
+		<img src="Signos/diez.png" style="width:6%;" onclick="pressDiez()">
+		<img src="Signos/once.png" style="width:6%;" onclick="pressOnce()">
+		<img src="Signos/doce.png" style="width:6%;" onclick="pressDoce()">
+	</form>
+
+	<script>
+		suma = -20;
+		res = -1;
+		signo = 0;
+
+		function pressMenos(){
+			document.getElementById("posResultadoSigno").src="Signos/menos.png";
+			signo = -1;
+		}
+		function pressMas(){
+			document.getElementById("posResultadoSigno").src="Signos/mas.png";
+			signo = 1;
+		}
+		function pressCero(){
+			document.getElementById("posResultadoNumero").src="Signos/cero.png";
+			res = 0;
+		}
+		function pressUno(){
+			document.getElementById("posResultadoNumero").src="Signos/uno.png";
+			res = 1;
+		}
+		function pressDos(){
+			document.getElementById("posResultadoNumero").src="Signos/dos.png";
+			res = 2;
+		}
+		function pressTres(){
+			document.getElementById("posResultadoNumero").src="Signos/tres.png";
+			res = 3;
+		}
+		function pressCuatro(){
+			document.getElementById("posResultadoNumero").src="Signos/cuatro.png";
+			res = 4;
+		}
+		function pressCinco(){
+			document.getElementById("posResultadoNumero").src="Signos/cinco.png";
+			res = 5;
+		}
+		function pressSeis(){
+			document.getElementById("posResultadoNumero").src="Signos/seis.png";
+			res = 6;
+		}
+		function pressSiete(){
+			document.getElementById("posResultadoNumero").src="Signos/siete.png";
+			res = 7;
+		}
+		function pressOcho(){
+			document.getElementById("posResultadoNumero").src="Signos/ocho.png";
+			res = 8;
+		}
+		function pressNueve(){
+			document.getElementById("posResultadoNumero").src="Signos/nueve.png";
+			res = 9;
+		}
+		function pressDiez(){
+			document.getElementById("posResultadoNumero").src="Signos/diez.png";
+			res = 10;
+		}
+		function pressOnce(){
+			document.getElementById("posResultadoNumero").src="Signos/once.png";
+			res = 11;
+		}
+		function pressDoce(){
+			document.getElementById("posResultadoNumero").src="Signos/doce.png";
+			res = 12;
+		}
+		function pressMezcla(){
+			num1 = Math.round(Math.random()*6);
+			sign = Math.round(Math.random()*1);
+			num2 = Math.round(Math.random()*6);
+			switch(num1){
+				case 0:
+					document.getElementById("posSumandoUno").src="Signos/cero.png";
+					break;
+				case 1:
+					document.getElementById("posSumandoUno").src="Signos/uno.png";
+					break;
+				case 2:
+					document.getElementById("posSumandoUno").src="Signos/dos.png";
+					break;
+				case 3:
+					document.getElementById("posSumandoUno").src="Signos/tres.png";
+					break;
+				case 4:
+					document.getElementById("posSumandoUno").src="Signos/cuatro.png";
+					break;
+				case 5:
+					document.getElementById("posSumandoUno").src="Signos/cinco.png";
+					break;
+				case 6:
+					document.getElementById("posSumandoUno").src="Signos/seis.png";
+					break;
+			}
+			switch(num2){
+				case 0:
+					document.getElementById("posSumandoDos").src="Signos/cero.png";
+					break;
+				case 1:
+					document.getElementById("posSumandoDos").src="Signos/uno.png";
+					break;
+				case 2:
+					document.getElementById("posSumandoDos").src="Signos/dos.png";
+					break;
+				case 3:
+					document.getElementById("posSumandoDos").src="Signos/tres.png";
+					break;
+				case 4:
+					document.getElementById("posSumandoDos").src="Signos/cuatro.png";
+					break;
+				case 5:
+					document.getElementById("posSumandoDos").src="Signos/cinco.png";
+					break;
+				case 6:
+					document.getElementById("posSumandoDos").src="Signos/seis.png";
+					break;
+			}
+			switch(sign){
+				case 0:
+					document.getElementById("posSumaSigno").src="Signos/mas.png";
+					suma = num1 + num2;
+					break;
+				case 1:
+					document.getElementById("posSumaSigno").src="Signos/menos.png";
+					suma = num1 - num2;
+					break;
+			}
+		}
+		function pressVerifica(){
+			resultado = res * signo;
+			if(suma == resultado){
+				alert("Perfecto ^.^");
+			}else{
+				alert("Hay que seguir intentando Ó.Ò");
+			}
+		}
+		function pressMuestraResultado(){
+			if(suma != -20){
+				switch(suma){
+					case -6:
+						document.getElementById("posResultadoSigno").src="Signos/menos.png";
+						document.getElementById("posResultadoNumero").src="Signos/seis.png";
+						signo = -1;
+						res = 6;
+						break;
+					case -5:
+						document.getElementById("posResultadoSigno").src="Signos/menos.png";
+						document.getElementById("posResultadoNumero").src="Signos/cinco.png";
+						signo = -1;
+						res = 5;
+						break;
+					case -4:
+						document.getElementById("posResultadoSigno").src="Signos/menos.png";
+						document.getElementById("posResultadoNumero").src="Signos/cuatro.png";
+						signo = -1;
+						res = 4;
+						break;
+					case -3:
+						document.getElementById("posResultadoSigno").src="Signos/menos.png";
+						document.getElementById("posResultadoNumero").src="Signos/tres.png";
+						signo = -1;
+						res = 3;
+						break;
+					case -2:
+						document.getElementById("posResultadoSigno").src="Signos/menos.png";
+						document.getElementById("posResultadoNumero").src="Signos/dos.png";
+						signo = -1;
+						res = 2;
+						break;
+					case -1:
+						document.getElementById("posResultadoSigno").src="Signos/menos.png";
+						document.getElementById("posResultadoNumero").src="Signos/uno.png";
+						signo = -1;
+						res = 1;
+						break;
+					case 0:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/cero.png";
+						signo = 1;
+						res = 0;
+						break;
+					case 1:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/uno.png";
+						signo = 1;
+						res = 1;
+						break;
+					case 2:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/dos.png";
+						signo = 1;
+						res = 2;
+						break;
+					case 3:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/tres.png";
+						signo = 1;
+						res = 3;
+						break;
+					case 4:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/cuatro.png";
+						signo = 1;
+						res = 4;
+						break;
+					case 5:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/cinco.png";
+						signo = 1;
+						res = 5;
+						break;
+					case 6:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/seis.png";
+						signo = 1;
+						res = 6;
+						break;
+					case 7:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/siete.png";
+						signo = 1;
+						res = 7;
+						break;
+					case 8:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/ocho.png";
+						signo = 1;
+						res = 8;
+						break;
+					case 9:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/nueve.png";
+						signo = 1;
+						res = 9;
+						break;
+					case 10:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/diez.png";
+						signo = 1;
+						res = 10;
+						break;
+					case 11:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/once.png";
+						signo = 1;
+						res = 11;
+						break;
+					case 12:
+						document.getElementById("posResultadoSigno").src="Signos/mas.png";
+						document.getElementById("posResultadoNumero").src="Signos/doce.png";
+						signo = 1;
+						res = 12;
+						break;																																																																																																						
+				}
+			}else{
+				alert("Primero presiona mezclar ^.^");
+			}
+		}
+
+	</script>
+
+</body>
+
+</html>

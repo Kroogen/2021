@@ -1,0 +1,34 @@
+
+public class SectorRam {
+	
+	private int proceso;
+	private boolean estado;
+	private int inicio;
+	private int fin;
+	
+	public SectorRam() {
+		Limpia();
+	}
+	
+	public int getProceso() {
+		return this.proceso;
+	}
+	
+	public boolean getEstado() {
+		return this.estado;
+	}
+	
+	public void setValores(int proceso) {
+		this.proceso = proceso;
+		this.estado = true;
+	}
+	
+	public void Limpia() {
+		this.proceso = -1;
+		this.estado = false;
+		this.inicio = -1;
+		this.fin = -1;
+	}
+	
+	
+}
