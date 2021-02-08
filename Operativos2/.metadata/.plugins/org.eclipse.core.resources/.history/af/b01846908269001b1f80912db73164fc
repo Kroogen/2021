@@ -9,7 +9,6 @@ public class Principal {
 	private static ArrayList<Hueco> huecosRAM;
 	private static ArrayList<Hueco> huecosSWAP;
 	private static int numFila = 1;
-	private static int paginacion;
 	
 	public static void main(String []args) {
 		boolean FIN = false;	
@@ -17,8 +16,6 @@ public class Principal {
 		IniciarValores();
 		int espaciosUsados = ActualizarEspacios();
 		int espaciosUsadoswap = ActualizarEspaciosSwap();
-		paginacion = TamanioPaginacion();
-		System.out.print(paginacion);
 		while(!FIN) {
 			switch(Menu()) {
 				case 1:
@@ -33,40 +30,25 @@ public class Principal {
 					espaciosUsadoswap = ActualizarEspaciosSwap();
 					break;
 				case 3:
-					System.out.print("\n----------------------------------------------------------------------------------------------------------------------");
-					MostrarRam("RAM",espaciosUsados,ram,huecosRAM);
-					System.out.print("\n\n----------------------------------------------------------------------------------------------------------------------");
-					MostrarRam("SWAP",espaciosUsadoswap,swap,huecosSWAP);
-					System.out.println("\n\n----------------------------------------------------------------------------------------------------------------------\n");
+					MostrarRam(espaciosUsados,espaciosUsadoswap);
 					break;
 				case 4:
 					Compactacion();
 					break;
 				case 5:
-					MapaBit(" R A M",ram);
-					System.out.print("\n\n");
-					MapaBit(" S W A P",swap);
+					MapaBit();
 					break;
 				case 6:
-					MuestraEspacios("RAM",huecosRAM);
-					System.out.print("\n\n");
-					MuestraEspacios("SWAP",huecosSWAP);
+					MuestraEspacios();
 					break;
 				case 7:
-					MostrarRamFila("RAM",ram);
-					System.out.print("\n");
-					MostrarRamFila("SWAP",swap);
+					MostrarRamFila();
 					break;	
 				case 8:
-					MostrarRamLista("RAM",ram);
-					System.out.print("\n");
-					MostrarRamLista("SWAP",swap);
+					MostrarRamLista();
 					break;
 				case 9:
 					BorrarCola();
-					break;
-				case 10:
-					MuestraPaginas();
 					break;	
 				case 0:
 					FIN = true;
@@ -74,46 +56,7 @@ public class Principal {
 			}
 			Pausa();
 		}
-	}
-	
-	//Imprime menú y verifica que la entrada sea válida
-		private static int Menu() {
-			int dec = -1;
-			
-			do {
-			System.out.println("* * * * M E N U * * * *");
-			System.out.println(" 1: Ingresar dato a RAM");
-			System.out.println(" 2: Eliminar dato de RAM");
-			System.out.println(" 3: Mostrar RAM");
-			System.out.println(" 4: Compactación");
-			System.out.println(" 5: Mapa de Bits");
-			System.out.println(" 6: Lista Huecos Disponibles");
-			System.out.println(" 7: Mostrar en Lista");
-			System.out.println(" 8: Mostrar en Vector");
-			System.out.println(" 9: Eliminar por Cola");
-			System.out.println(" 10: Mostrar Páginas");
-			System.out.println(" 0: Salir\n");
-			System.out.println("Seleccione una opción: ");
-			try {
-				dec = Integer.parseInt(scanner.next());
-			}catch(Exception e) {
-				dec = -1;
-			}
-			}while(dec < 0 || dec > 10);
-			return dec;
-		}
-	
-	private static int TamanioPaginacion() {
-		int num;
-		do {
-			System.out.print("Ingrese el tamaño de la paginación:");
-			try {
-				num = Integer.parseInt(scanner.next());
-			}catch(Exception e) {
-				num = -1;
-			}
-		}while(num < 2 || num > TAMANIO);
-		return num;
+		
 	}
 	
 	//Leé el tamaño que querra el usuario que tenga la RAM y SWAMP (cuyo tamaño mínimo será 10 y máximo 100)
@@ -126,6 +69,32 @@ public class Principal {
 				TAMANIO = -1;
 			}
 		}while(TAMANIO < 10 || TAMANIO > 100);
+	}
+	
+	//Imprime menú y verifica que la entrada sea válida
+	private static int Menu() {
+		int dec = -1;
+		
+		do {
+		System.out.println("* * * * M E N U * * * *");
+		System.out.println(" 1: Ingresar dato a RAM");
+		System.out.println(" 2: Eliminar dato de RAM");
+		System.out.println(" 3: Mostrar RAM");
+		System.out.println(" 4: Compactación");
+		System.out.println(" 5: Mapa de Bits");
+		System.out.println(" 6: Lista Huecos Disponibles");
+		System.out.println(" 7: Mostrar en Lista");
+		System.out.println(" 8: Mostrar en Vector");
+		System.out.println(" 9: Eliminar por Cola");
+		System.out.println(" 0: Salir\n");
+		System.out.println("Seleccione una opción: ");
+		try {
+			dec = Integer.parseInt(scanner.next());
+		}catch(Exception e) {
+			dec = -1;
+		}
+		}while(dec < 0 || dec > 9);
+		return dec;
 	}
 	
 	//Elimina los valores asociados al proceso especificado
@@ -154,11 +123,12 @@ public class Principal {
 	}
 	
 	//Imprime el contenido de la RAM así como detalles de su espacio
-	private static void MostrarRam(String titulo,int espaciosUsados, SectorRam[] memoria, ArrayList<Hueco> hueco) {
-		System.out.println("\n\n" + titulo + " total " + TAMANIO +" Bloques:\tBloques usados:" + espaciosUsados + "\tBloques libres:" + (TAMANIO - espaciosUsados));
-		MuestraEspacios(titulo,hueco);
+	private static void MostrarRam(int espaciosUsados,int espaciosUsadosSwap) {
+		System.out.println("\n\nRAM total " + TAMANIO +" Bloques:\tBloques usados:" + espaciosUsados + "\tBloques libres:" + (TAMANIO - espaciosUsados));
+		System.out.println("\n\nSWAP total " + TAMANIO +" Bloques:\tBloques usados:" + espaciosUsadosSwap + "\tBloques libres:" + (TAMANIO - espaciosUsadosSwap));
+		MuestraEspacios();
 		
-		for(int i = 0; i < memoria.length; i++) {
+		for(int i = 0; i < ram.length; i++) {
 			if(i < 10) {
 				System.out.print("[ " + i + "]");
 			}
@@ -168,7 +138,7 @@ public class Principal {
 		}
 		System.out.print("\n");
 		
-		for(SectorRam r : memoria) {
+		for(SectorRam r : ram) {
 			if(r.getEstado()) {
 				if(r.getProceso() < 10) {
 					System.out.print("[ " + r.getProceso() + "]");
@@ -408,19 +378,22 @@ public class Principal {
 	}
 	
 	//Imprime los huecos existentes, Inicio - Final : Tamaño
-	private static void MuestraEspacios(String titulo, ArrayList<Hueco> huecos) {
-		System.out.println(titulo);
-		for(Hueco h : huecos)
+	private static void MuestraEspacios() {
+		System.out.println("RAM\n");
+		for(Hueco h : huecosRAM)
+			System.out.println("Inicio " + h.getInicio() + " - Final " + h.getFinal() + " : Total " + h.getTamanio());
+		System.out.println("\n\nSWAP");
+		for(Hueco h : huecosSWAP)
 			System.out.println("Inicio " + h.getInicio() + " - Final " + h.getFinal() + " : Total " + h.getTamanio());
 	}
 	
 	//Imprime la RAM como mapa de bits 
-	private static void MapaBit(String titulo, SectorRam[] memoria) { //8 pos por fila
-		System.out.println("* * * M A P A   D E   B I T S " + titulo + " * * *\n");
-		for(int i = 0; i < memoria.length; i++) {
+	private static void MapaBit() { //8 pos por fila
+		System.out.println("* * * M A P A   D E   B I T S * * *\n");
+		for(int i = 0; i < ram.length; i++) {
 			if( i != 0 && ((i % 8) == 0))
 				System.out.print("\n");
-			if(memoria[i].getEstado()) {
+			if(ram[i].getEstado()) {
 				System.out.print("1 ");
 			}else {
 				System.out.print("0 ");
@@ -429,10 +402,10 @@ public class Principal {
 	}
 	
 	//Imprime la RAM como una fila de procesos
-	private static void MostrarRamFila(String titulo, SectorRam[] memoria) {
+	private static void MostrarRamFila() {
 		System.out.println("* * * L I S T A    D E   P R O C E S O S * * *\n\n");
-		System.out.println(titulo + ":");
-		for(SectorRam s : memoria) {
+		System.out.println("RAM:");
+		for(SectorRam s : ram) {
 			if(s.isCorner()) {
 				if(s.getInicio() != -1) { //Es inicio
 					System.out.print(" --> [" + s.getInicio() + "] " + s.getProceso());
@@ -444,9 +417,9 @@ public class Principal {
 	}
 	
 	//Imprime la RAM como una lista de procesos
-	private static void MostrarRamLista(String titulo, SectorRam[] memoria) {
-			System.out.println("* * * V E C T O R    D E   P R O C E S O S " + titulo +" * * *\n");
-			for(SectorRam s : memoria) {
+	private static void MostrarRamLista() {
+			System.out.println("* * * V E C T O R    D E   P R O C E S O S * * *\n");
+			for(SectorRam s : ram) {
 				if(s.isCorner()) {
 					if(s.getInicio() != -1) { //Es inicio
 						if(s.getInicio() < 10) {
@@ -464,7 +437,7 @@ public class Principal {
 			}
 		}
 		
-	//Borra el primero en haber entrado 
+		//Borra el primero en haber entrado 
 	private static void BorrarCola() {
 			int menor = -1;
 			int inicio = -1;
@@ -483,13 +456,5 @@ public class Principal {
 				ram[i].Limpia();
 			}
 		}
-	
-	private static void MuestraPaginas(String titulo, SectorRam[] memoria) {
-		System.out.print("Sectores de la memoria " + titulo);
-		int sector = 1;
-		for(SectorRam s : memoria) {
-			
-		}
-	}
 	
 }

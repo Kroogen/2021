@@ -9,7 +9,6 @@ public class Principal {
 	private static ArrayList<Hueco> huecosRAM;
 	private static ArrayList<Hueco> huecosSWAP;
 	private static int numFila = 1;
-	private static int paginacion;
 	
 	public static void main(String []args) {
 		boolean FIN = false;	
@@ -17,7 +16,7 @@ public class Principal {
 		IniciarValores();
 		int espaciosUsados = ActualizarEspacios();
 		int espaciosUsadoswap = ActualizarEspaciosSwap();
-		paginacion = TamanioPaginacion();
+		int paginacion = TamanioPaginacion();
 		System.out.print(paginacion);
 		while(!FIN) {
 			switch(Menu()) {
@@ -485,8 +484,7 @@ public class Principal {
 		}
 	
 	private static void MuestraPaginas(String titulo, SectorRam[] memoria) {
-		System.out.print("Sectores de la memoria " + titulo);
-		int sector = 1;
+		
 		for(SectorRam s : memoria) {
 			
 		}

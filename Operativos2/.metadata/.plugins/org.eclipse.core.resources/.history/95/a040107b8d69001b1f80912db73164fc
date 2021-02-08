@@ -9,7 +9,6 @@ public class Principal {
 	private static ArrayList<Hueco> huecosRAM;
 	private static ArrayList<Hueco> huecosSWAP;
 	private static int numFila = 1;
-	private static int paginacion;
 	
 	public static void main(String []args) {
 		boolean FIN = false;	
@@ -17,7 +16,7 @@ public class Principal {
 		IniciarValores();
 		int espaciosUsados = ActualizarEspacios();
 		int espaciosUsadoswap = ActualizarEspaciosSwap();
-		paginacion = TamanioPaginacion();
+		int paginacion = TamanioPaginacion();
 		System.out.print(paginacion);
 		while(!FIN) {
 			switch(Menu()) {
@@ -66,7 +65,7 @@ public class Principal {
 					BorrarCola();
 					break;
 				case 10:
-					MuestraPaginas();
+					BorrarCola();
 					break;	
 				case 0:
 					FIN = true;
@@ -464,7 +463,7 @@ public class Principal {
 			}
 		}
 		
-	//Borra el primero en haber entrado 
+		//Borra el primero en haber entrado 
 	private static void BorrarCola() {
 			int menor = -1;
 			int inicio = -1;
@@ -483,13 +482,5 @@ public class Principal {
 				ram[i].Limpia();
 			}
 		}
-	
-	private static void MuestraPaginas(String titulo, SectorRam[] memoria) {
-		System.out.print("Sectores de la memoria " + titulo);
-		int sector = 1;
-		for(SectorRam s : memoria) {
-			
-		}
-	}
 	
 }
