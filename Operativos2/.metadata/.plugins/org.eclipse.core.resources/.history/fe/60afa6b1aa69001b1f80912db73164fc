@@ -18,6 +18,7 @@ public class Principal {
 		int espaciosUsados = ActualizarEspacios();
 		int espaciosUsadoswap = ActualizarEspaciosSwap();
 		paginacion = TamanioPaginacion();
+		System.out.print(paginacion);
 		while(!FIN) {
 			switch(Menu()) {
 				case 1:
@@ -65,9 +66,7 @@ public class Principal {
 					BorrarCola();
 					break;
 				case 10:
-					MuestraPaginas("RAM" , ram);
-					System.out.print("\n");
-					MuestraPaginas("SWAP" , swap);
+					MuestraPaginas();
 					break;	
 				case 0:
 					FIN = true;
@@ -486,15 +485,15 @@ public class Principal {
 		}
 	
 	private static void MuestraPaginas(String titulo, SectorRam[] memoria) {
-		System.out.println("Sectores de la memoria " + titulo + "\n");
+		System.out.print("Sectores de la memoria " + titulo);
 		int sector = 1;
 		for(int i = 0; i < memoria.length; i++) {
 			if(i == 0) {
-				System.out.print("Página " + sector++ + ": Inicio " + i);
-			}else if(i == memoria.length-1) {
-				System.out.print("   -   Final " + i);
+				System.out.print("Página " + sector++);
+			}else if() {
+				
 			}else if((i % paginacion) == 0 ) {
-				System.out.print("   -   Final " + (i-1) + "\nPágina " + sector++ + ": Inicio " + i);
+				
 			}
 		}
 	}

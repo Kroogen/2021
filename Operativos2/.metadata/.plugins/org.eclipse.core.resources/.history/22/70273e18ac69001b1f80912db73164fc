@@ -66,8 +66,6 @@ public class Principal {
 					break;
 				case 10:
 					MuestraPaginas("RAM" , ram);
-					System.out.print("\n");
-					MuestraPaginas("SWAP" , swap);
 					break;	
 				case 0:
 					FIN = true;
@@ -493,8 +491,8 @@ public class Principal {
 				System.out.print("Página " + sector++ + ": Inicio " + i);
 			}else if(i == memoria.length-1) {
 				System.out.print("   -   Final " + i);
-			}else if((i % paginacion) == 0 ) {
-				System.out.print("   -   Final " + (i-1) + "\nPágina " + sector++ + ": Inicio " + i);
+			}else if((i % paginacion-1) == 0 ) {
+				System.out.print("   -   Final " + i + "\nPágina " + sector++ + ": Inicio " + i);
 			}
 		}
 	}

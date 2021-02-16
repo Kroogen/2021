@@ -18,6 +18,7 @@ public class Principal {
 		int espaciosUsados = ActualizarEspacios();
 		int espaciosUsadoswap = ActualizarEspaciosSwap();
 		paginacion = TamanioPaginacion();
+		System.out.print(paginacion);
 		while(!FIN) {
 			switch(Menu()) {
 				case 1:
@@ -66,8 +67,6 @@ public class Principal {
 					break;
 				case 10:
 					MuestraPaginas("RAM" , ram);
-					System.out.print("\n");
-					MuestraPaginas("SWAP" , swap);
 					break;	
 				case 0:
 					FIN = true;
@@ -494,7 +493,7 @@ public class Principal {
 			}else if(i == memoria.length-1) {
 				System.out.print("   -   Final " + i);
 			}else if((i % paginacion) == 0 ) {
-				System.out.print("   -   Final " + (i-1) + "\nPágina " + sector++ + ": Inicio " + i);
+				System.out.print("   -   Final " + i + "\nPágina " + sector++ + ": Inicio " + i);
 			}
 		}
 	}

@@ -66,8 +66,6 @@ public class Principal {
 					break;
 				case 10:
 					MuestraPaginas("RAM" , ram);
-					System.out.print("\n");
-					MuestraPaginas("SWAP" , swap);
 					break;	
 				case 0:
 					FIN = true;
