@@ -483,29 +483,15 @@ public class Principal {
 	private static void MuestraPaginas(String titulo, SectorRam[] memoria) {
 		System.out.println("Sectores de la memoria " + titulo + "\n");
 		int sector = 1;
-		int inicio = 0;
 		for(int i = 0; i < memoria.length; i++) {
 			if(i == 0) {
 				System.out.print("Página " + sector++ + ": Inicio " + i);
 			}else if(i == memoria.length-1) {
 				System.out.print("   -   Final " + i);
 			}else if((i % paginacion) == 0 ) {
-				System.out.print("   -   Final " + (i-1) + MuestraEstados(inicio,i,memoria) + "\nPágina " + sector++ + ": Inicio " + i);
-				inicio = i+1;
+				System.out.print("   -   Final " + (i-1) + "\nPágina " + sector++ + ": Inicio " + i);
 			}
 		}
 	}
-	
-	private static String MuestraEstados(int inicio, int fin, SectorRam[] memoria) {
-		int num = -1;
-		String cad = "  -  Procesos: ";
-		for(int i = inicio; i < fin; i++) {
-			if(memoria[i].getProceso() != -1 && memoria[i].getProceso() != num) {
-				cad+= (memoria[i].getProceso() + "  ");
-				num = memoria[i].getProceso();
-			}
-		}
-		return cad;
-	} 
 	
 }

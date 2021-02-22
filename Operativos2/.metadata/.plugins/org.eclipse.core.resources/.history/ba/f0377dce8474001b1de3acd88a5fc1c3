@@ -16,21 +16,21 @@ public class Principal {
 		boolean FIN = false;	
 		TamanioRam();
 		IniciarValores();
-		int espaciosUsados = ActualizarEspacios(ram,huecosRAM);
-		int espaciosUsadoswap = ActualizarEspacios(swap,huecosSWAP);
+		int espaciosUsados = ActualizarEspacios();
+		int espaciosUsadoswap = ActualizarEspaciosSwap();
 		paginacion = TamanioPaginacion();
 		while(!FIN) {
 			switch(Menu()) {
 				case 1:
 					if(IngresarDato(espaciosUsados,espaciosUsadoswap)) {
-						espaciosUsados = ActualizarEspacios(ram,huecosRAM);
-						espaciosUsadoswap = ActualizarEspacios(swap,huecosSWAP);
+						espaciosUsados = ActualizarEspacios();
+						espaciosUsadoswap = ActualizarEspaciosSwap();
 					}
 					break;
 				case 2:
 					EliminarValores();
-					espaciosUsados = ActualizarEspacios(ram,huecosRAM);
-					espaciosUsadoswap = ActualizarEspacios(swap,huecosSWAP);
+					espaciosUsados = ActualizarEspacios();
+					espaciosUsadoswap = ActualizarEspaciosSwap();
 					break;
 				case 3:
 					System.out.print("\n----------------------------------------------------------------------------------------------------------------------");
@@ -40,8 +40,8 @@ public class Principal {
 					System.out.println("\n\n----------------------------------------------------------------------------------------------------------------------\n");
 					break;
 				case 4:
-					Compactacion(ram,huecosRAM);
-					Compactacion(swap,huecosSWAP);
+					Compactacion(ram);
+					Compactacion(swap);
 					break;
 				case 5:
 					MapaBit(" R A M",ram);
@@ -235,7 +235,7 @@ public class Principal {
 			return;
 		}
 		//Hacer espacio para el valor a insertar
-		Compactacion(memoria, huecosMemoria);
+		Compactacion(memoria);
 		InsertarEnHuecoFinal(proceso,tamanio, memoria, huecosMemoria);
 	}
 	
@@ -265,7 +265,7 @@ public class Principal {
 			return;
 		}
 		//Hacer espacio para el valor a insertar
-		Compactacion(memoria,huecosMemoria);
+		Compactacion(memoria);
 		InsertarEnHueco(proceso,tamanio,memoria,huecosMemoria);
 	}
 	
@@ -306,7 +306,7 @@ public class Principal {
 				}
 			}
 		}
-		ActualizarEspacios(memoria,huecos);
+		ActualizarEspacios(memoria);
 	}
 
 	//Verifica que el número del proceso no esté ya ingresado en la ram y que ese valor sea uno válido
@@ -367,15 +367,15 @@ public class Principal {
 	
 	//Almacena en un arreglo los huecos disponibles y regresa el total de espacios usados
 	//Limpia la lista cada vez que es modificado el espacio
-	private static int ActualizarEspacios(SectorRam []memoria,ArrayList<Hueco> huecos) {
-		int inicio = -1, fin = -1, espacios = 0, huecosActuales = huecos.size();
+	private static int ActualizarEspacios(SectorRam []memoria) {
+		int inicio = -1, fin = -1, espacios = 0, huecosActuales = huecosRAM.size();
 		
 		for(int i = 0; i < huecosActuales; i++) {
-			huecos.remove(0);
+			huecosRAM.remove(0);
 		}
 		
-		for(int i = 0; i < memoria.length; i++)
-			if(!memoria[i].getEstado()) {
+		for(int i = 0; i < ram.length; i++)
+			if(!ram[i].getEstado()) {
 				espacios++;
 				if(inicio == -1) {
 					inicio = i;
@@ -386,16 +386,46 @@ public class Principal {
 				if(fin == -1) {
 					fin = i - 1;
 				}
-				huecos.add(new Hueco(inicio, fin));
+				huecosRAM.add(new Hueco(inicio, fin));
 				inicio = fin = -1;
 			}
 		
 		if(inicio != -1) {
-			huecos.add(new Hueco(inicio, fin));
+			huecosRAM.add(new Hueco(inicio, fin));
 		}
 		return TAMANIO - espacios;
 	}
-
+	
+	//Almacena en un arreglo los huecos swap disponibles y regresa el total de espacios usados
+		//Limpia la lista cada vez que es modificado el espacio
+	private static int ActualizarEspaciosSwap() {
+		int inicio = -1, fin = -1, espacios = 0, huecosActuales = huecosSWAP.size();
+		
+		for(int i = 0; i < huecosActuales; i++) {
+			huecosSWAP.remove(0);
+		}
+		
+		for(int i = 0; i < swap.length; i++)
+			if(!swap[i].getEstado()) {
+				espacios++;
+				if(inicio == -1) {
+					inicio = i;
+				}else {
+					fin = i;
+				}
+			}else if(inicio != -1){
+				if(fin == -1) {
+					fin = i - 1;
+				}
+				huecosSWAP.add(new Hueco(inicio, fin));
+				inicio = fin = -1;
+			}
+		
+		if(inicio != -1) {
+			huecosSWAP.add(new Hueco(inicio, fin));
+		}
+		return TAMANIO - espacios;
+	}
 	
 	//Congela la pantalla para ver los datos obtenidos
 	private static void Pausa() {
@@ -483,29 +513,15 @@ public class Principal {
 	private static void MuestraPaginas(String titulo, SectorRam[] memoria) {
 		System.out.println("Sectores de la memoria " + titulo + "\n");
 		int sector = 1;
-		int inicio = 0;
 		for(int i = 0; i < memoria.length; i++) {
 			if(i == 0) {
 				System.out.print("Página " + sector++ + ": Inicio " + i);
 			}else if(i == memoria.length-1) {
 				System.out.print("   -   Final " + i);
 			}else if((i % paginacion) == 0 ) {
-				System.out.print("   -   Final " + (i-1) + MuestraEstados(inicio,i,memoria) + "\nPágina " + sector++ + ": Inicio " + i);
-				inicio = i+1;
+				System.out.print("   -   Final " + (i-1) + "\nPágina " + sector++ + ": Inicio " + i);
 			}
 		}
 	}
-	
-	private static String MuestraEstados(int inicio, int fin, SectorRam[] memoria) {
-		int num = -1;
-		String cad = "  -  Procesos: ";
-		for(int i = inicio; i < fin; i++) {
-			if(memoria[i].getProceso() != -1 && memoria[i].getProceso() != num) {
-				cad+= (memoria[i].getProceso() + "  ");
-				num = memoria[i].getProceso();
-			}
-		}
-		return cad;
-	} 
 	
 }

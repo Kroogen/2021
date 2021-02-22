@@ -490,22 +490,15 @@ public class Principal {
 			}else if(i == memoria.length-1) {
 				System.out.print("   -   Final " + i);
 			}else if((i % paginacion) == 0 ) {
-				System.out.print("   -   Final " + (i-1) + MuestraEstados(inicio,i,memoria) + "\nPágina " + sector++ + ": Inicio " + i);
-				inicio = i+1;
+				System.out.print("   -   Final " + (i-1) + "\nPágina " + sector++ + ": Inicio " + i);
 			}
 		}
 	}
 	
-	private static String MuestraEstados(int inicio, int fin, SectorRam[] memoria) {
-		int num = -1;
-		String cad = "  -  Procesos: ";
+	private static void MuestraEstados(int inicio, int fin, SectorRam[] memoria) {
 		for(int i = inicio; i < fin; i++) {
-			if(memoria[i].getProceso() != -1 && memoria[i].getProceso() != num) {
-				cad+= (memoria[i].getProceso() + "  ");
-				num = memoria[i].getProceso();
-			}
+			
 		}
-		return cad;
 	} 
 	
 }

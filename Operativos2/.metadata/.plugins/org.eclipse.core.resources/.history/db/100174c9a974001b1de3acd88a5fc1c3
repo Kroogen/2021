@@ -490,7 +490,7 @@ public class Principal {
 			}else if(i == memoria.length-1) {
 				System.out.print("   -   Final " + i);
 			}else if((i % paginacion) == 0 ) {
-				System.out.print("   -   Final " + (i-1) + MuestraEstados(inicio,i,memoria) + "\nPágina " + sector++ + ": Inicio " + i);
+				System.out.print("   -   Final " + MuestraEstados(inicio,i,memoria) + (i-1) + "\nPágina " + sector++ + ": Inicio " + i);
 				inicio = i+1;
 			}
 		}
