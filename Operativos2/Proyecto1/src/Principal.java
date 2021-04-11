@@ -100,38 +100,38 @@ public class Principal {
 		return tmanio;
 	}
 	
-	private static void InsertarValores() {
+	private static void CambiaTareaMemoria(Tarea tarea, int tam){
+		if(RAM.CalculaMemoriaLiberable() >= tam) { //Hay espacio suficiente para liberar
+			while(RAM.getEspacioLibre() < tam) {
+				RAM.CambiaEstado(HDD);
+			}
+			RAM.Compactacion();
+			AlmacenaTarea(tarea,tam,RAM);
+		}else {
+			System.out.print("\nEl proceso tiene estado de Ejecución pero no hay espacio en la RAM\n\n");
+		}
+	}
+	
+	private static void InsertarValores() {	
 		int id, tam;
 		Tarea tarea;
+		
 		if((id = VerificaExistenciaId()) != -1) { //No existe el proceso
 			System.out.print("\nIngrese el tamaño del proceso: ");
 			if((tam = VerificaDatoIngresado()) != -1) { //Ingresado un número
-				
 				tarea = new Tarea(id);
 				if(VerificaTamanio(RAM,tam) != -1) { //Hay espacio en la ram             if 1
 					AlmacenaTarea(tarea,tam,RAM);
-				}else { //Verificar si se puede meter aun en RAM
-					if(tarea.getEstado() == 'x') { //Necesita estar en RAM
-						if((RAM.getEspacioLibre() + RAM.CalculaMemoriaLiberable()) >= tam) { //si se pueden mover suficientes procesos para agregar uno nuevo
-							System.out.println("\nif-2");
-							HDD.Compactacion();
-							RAM.IntercambioTareas(tam, HDD);
-							RAM.Compactacion();
-							RAM.GuardaDatos(tarea,tam);
-							System.out.println("Tarea en RAM");
-						}else {
-							System.out.println("\nif-3");
-							System.out.println("Imposible agregar la Tarea " + tarea.getId() + " en la RAM, espacio insuficiente\n");
-						}
-					}else { //Verificar si se puede guardar en HDD
-						if(VerificaTamanio(HDD,tam) != -1) { //Hay espacio en hdd
-							AlmacenaTarea(tarea,tam,HDD);
-						}else { //No hay tamaño inmediato en RAM ni HDD
-							System.out.println("\nif-5");
-							System.out.println("Espacio insuficiente");
-						}
-					}
+				}else if(tarea.getEstado() == 'x') { //Verificar estado del proceso
+					System.out.println("\nEstado debe quedar en Ram");
+					CambiaTareaMemoria(tarea,tam);
+				}else if(VerificaTamanio(HDD,tam) != -1){ //se guarda estado en HDD si hay espacio
+					AlmacenaTarea(tarea,tam,HDD);
+				}else {
+					System.out.println("\nEspacio insuficiente");
 				}
+			}else {
+				System.out.print("\nValor inválido");
 			}
 		}
 	}
@@ -153,7 +153,7 @@ public class Principal {
 		if(id != -1 && !RAM.VerificaIdExistente(id) && !HDD.VerificaIdExistente(id))
 			return id;
 		else {
-			System.out.print("\nEl dato ingresado es inválido");
+			System.out.print("\nEl dato ya fue ingresado, es inválido");
 			return -1;
 		}
 	}
@@ -165,8 +165,7 @@ public class Principal {
 		return -1;
 	}
 	
-	//Imprime los huecos existentes en la memoria
-		
+	//Imprime los huecos existentes en la memoria	
 	private static void EliminaDatos() {
 		int id;
 		
@@ -210,14 +209,21 @@ public class Principal {
 		Hueco hueco;
 		Tarea tarea;
 		int pos;
-		
+		/*--------------------------------------------------------------------------------------------------------------------------------*/
 		while((pos = HDD.BuscaEjecucion()) != -1 ) {
 			tarea = new Tarea(HDD.getIDTarea(pos),'x');
 			hueco = new Hueco(pos, HDD.getFinalPosTarea(pos));
 			HDD.EliminarTarea(tarea.getId());
-			if(RAM.IntercambioTareas(hueco.getTamanio(), HDD)) {
+			if((RAM.getEspacioLibre() + RAM.CalculaMemoriaLiberable()) >= hueco.getTamanio()) { //si se pueden mover suficientes procesos para agregar uno nuevo
+				System.out.println("\nif-2");
+				HDD.Compactacion();
+				RAM.IntercambioTareas(hueco.getTamanio(), HDD);
 				RAM.Compactacion();
 				RAM.GuardaDatos(tarea,hueco.getTamanio());
+				System.out.println("Tarea en RAM");
+			}else {
+				System.out.println("\nif-3");
+				System.out.println("Imposible agregar la Tarea " + tarea.getId() + " en la RAM, espacio insuficiente\n");
 			}
 		}
 		RAM.Compactacion();
@@ -246,10 +252,10 @@ public class Principal {
 						case 3:	
 								RAM.setEstadoTarea(id, 'x');
 								HDD.setEstadoTarea(id, 'x');
+								CambiaTareasX();
 							break;
 					}
-					
-					IntercambioTareas();
+					//IntercambioTareas();
 					
 				}else { //El id dado no está en RAM ni HDD
 					System.out.print("La opción elegida es invalida");
@@ -257,6 +263,19 @@ public class Principal {
 			}else { //El id dado no está en RAM ni HDD
 				System.out.print("El número de Tarea dado no es válido");
 			}
+		}
+	}	
+	
+	//CambiaTareaMemoria(Tarea tarea, int tam){
+	private static void CambiaTareasX() {
+		int id = HDD.isTareaEjecutable();
+		char est;
+		int tam;
+		if(id != -1) {
+			est = HDD.getEstadoTareaID(id);
+			tam = HDD.calculaTamTarea(id);
+			HDD.EliminarTarea(id);
+			CambiaTareaMemoria(new Tarea(id,est), tam);
 		}
 	}
 	

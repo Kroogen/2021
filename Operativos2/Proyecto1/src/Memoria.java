@@ -452,5 +452,45 @@ public class Memoria {
 		return tam;
 	}
 	
+	public void CambiaEstado(Memoria memoria) {
+		int id = -1;
+		int tam = 0;
+		char est;
+		for(int i = 0; i < this.memoria.length; i++) {
+			if(id == -1 && this.memoria[i].getUso() && this.memoria[i].getEstado() != 'x') {
+				id = this.memoria[i].getId();
+				est = this.memoria[i].getEstado();
+				tam = calculaTamTarea(id);
+				EliminarTarea(id);
+				memoria.GuardaDatos(new Tarea(id, est), tam);
+				calculaEspacioLibre();
+				CalculaHuecos();
+				return ;
+			}
+		}
+		return ;
+	}
+
+	public int calculaTamTarea(int id) {
+		int tam = 0;
+		
+		for(Tarea t : memoria) {
+			if(t.getId() == id) {
+				tam++;
+			}
+		}
+		
+		return tam;
+	}
+	
+	public int isTareaEjecutable() {
+		for(Tarea t : memoria) {
+			if(t.getUso() && t.getEstado() == 'x') {
+				return t.getId();
+			}
+		}
+		return -1;
+	}
+	
 }
 

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js vr - ball shooter</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<!--<link type="text/css" rel="stylesheet" href="main.css">-->
+	</head>
+	<body>
+
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> vr - ball shooter
+		</div>
+
+		<script type="module">
+
+			import * as THREE from "../node_modules/three/build/three.module.js";
+
+			import { BoxLineGeometry } from 'https://unpkg.com/three/examples/jsm/geometries/BoxLineGeometry.js';
+			import { VRButton } from 'https://unpkg.com/three/examples/jsm/webxr/VRButton.js';
+			import { XRControllerModelFactory } from 'https://unpkg.com/three/examples/jsm/webxr/XRControllerModelFactory.js';
+
+			let camera, scene, renderer;
+			let controller1, controller2;
+			let controllerGrip1, controllerGrip2;
+
+			let room;
+
+			let numBolas = 8; //Número de bolas que aprecerán
+			let count = 0;
+			const radius = 0.1;
+			let inicio = 0;
+			let deltax = 0;
+			let deltay = 0;
+			let deltaz = 0;
+			let time = 0;
+			let mov = false;
+			let normal = new THREE.Vector3();
+			const relativeVelocity = new THREE.Vector3();
+
+			const clock = new THREE.Clock();
+
+			init();
+			animate();
+
+			function init() {
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xfff3e0 ); //Color de fondo general
+
+				camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.1, 10 );
+				camera.position.set( 0, 1.6, 7 );
+
+				//Se encarga de modificar el room, color de las lineas, cantidad y tamaño de ellas
+				room = new THREE.LineSegments(
+					new BoxLineGeometry( 6, 6, 6, 1, 1, 1 ), // ancho, alto, profundidad y lineas que dividen
+					new THREE.LineBasicMaterial( { color: 0x3e2723 } ) //Color de las lineas
+				);
+				//Posición de las líneas del room respecto a la cámara
+				room.geometry.translate( 0, 3, 0 );
+				//Se agrega room a la escena
+				scene.add( room );
+
+				//Luz que afecta directamente a los objetos
+				scene.add( new THREE.HemisphereLight( 0x795548, 0xfbc02d ) );
+
+				//Luz global
+				const light = new THREE.DirectionalLight( 0xefebe9 );
+				//se posiciona la luz y se obtiene su vector normal 
+				light.position.set( 10, 5, -5 ).normalize();
+				//se añade a la escena
+				scene.add( light );
+
+				//Geometría usada en las esferas
+				const geometry = new THREE.IcosahedronGeometry( radius, 3);
+
+				//Creación de cada una de las bolas en pantalla
+				for ( let i = 0; i < numBolas; i ++ ) {
+					//Se le asigna una geometria y color a cada bola
+					const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0xffff8d } ) );
+
+					//Posición inicial en cada coordenada
+					//No se recomiendas números muy altos ya que si no 
+					//se dificulta la interacción entre ellas
+					object.position.x = Math.random() * 2 - .5;
+					object.position.y = inicio;
+					object.position.z = Math.random() * 2 - .5;
+
+					//Se asigna la fuerza dada en cada dirección para poder
+					//garantizar que las bolas empiezan en reposo
+					object.userData.velocity = new THREE.Vector3();
+					object.userData.velocity.x =0; //Math.random() * 0.01 - 0.005;
+					object.userData.velocity.y =0; //Math.random() * 0.01 - 0.005;
+					object.userData.velocity.z =0; //Math.random() * 0.01 - 0.005;
+
+					room.add( object );
+
+				}
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.xr.enabled = true;
+				document.body.appendChild( renderer.domElement );
+
+				//
+				//Muestra el botón de VR
+				//document.body.appendChild( VRButton.createButton( renderer ) );
+
+				// controllers
+
+				function onSelectStart() {
+
+					this.userData.isSelecting = true;
+
+				}
+
+				function onSelectEnd() {
+
+					this.userData.isSelecting = false;
+
+				}
+
+				controller1 = renderer.xr.getController( 0 );
+				controller1.addEventListener( 'selectstart', onSelectStart );
+				controller1.addEventListener( 'selectend', onSelectEnd );
+				controller1.addEventListener( 'connected', function ( event ) {
+
+					this.add( buildController( event.data ) );
+
+				} );
+				controller1.addEventListener( 'disconnected', function () {
+
+					this.remove( this.children[ 0 ] );
+
+				} );
+				scene.add( controller1 );
+
+				controller2 = renderer.xr.getController( 1 );
+				controller2.addEventListener( 'selectstart', onSelectStart );
+				controller2.addEventListener( 'selectend', onSelectEnd );
+				controller2.addEventListener( 'connected', function ( event ) {
+
+					this.add( buildController( event.data ) );
+
+				} );
+				controller2.addEventListener( 'disconnected', function () {
+
+					this.remove( this.children[ 0 ] );
+
+				} );
+				scene.add( controller2 );
+
+				// The XRControllerModelFactory will automatically fetch controller models
+				// that match what the user is holding as closely as possible. The models
+				// should be attached to the object returned from getControllerGrip in
+				// order to match the orientation of the held device.
+
+				const controllerModelFactory = new XRControllerModelFactory();
+
+				controllerGrip1 = renderer.xr.getControllerGrip( 0 );
+				controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
+				scene.add( controllerGrip1 );
+
+				controllerGrip2 = renderer.xr.getControllerGrip( 1 );
+				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
+				scene.add( controllerGrip2 );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function buildController( data ) {
+
+				let geometry, material;
+
+				switch ( data.targetRayMode ) {
+
+					case 'tracked-pointer':
+
+						geometry = new THREE.BufferGeometry();
+						geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
+						geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
+
+						material = new THREE.LineBasicMaterial( { vertexColors: true, blending: THREE.AdditiveBlending } );
+
+						return new THREE.Line( geometry, material );
+
+					case 'gaze':
+
+						geometry = new THREE.RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
+						material = new THREE.MeshBasicMaterial( { opacity: 0.5, transparent: false } );
+						return new THREE.Mesh( geometry, material );
+
+				}
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function handleController( controller ) {
+
+				if ( controller.userData.isSelecting ) {
+
+					const object = room.children[ count ++ ];
+
+					//object.position.copy( controller.position );
+					//object.userData.velocity.x = ( Math.random() - 0.5 ) * 3;
+					//object.userData.velocity.y = ( Math.random() - 0.5 ) * 3;
+					//object.userData.velocity.z = ( Math.random() - 9 );
+					//object.userData.velocity.applyQuaternion( controller.quaternion );
+
+					if ( count === room.children.length ) count = 0;
+
+				}
+
+			}
+			function animate() {
+
+				renderer.setAnimationLoop( render );
+
+			}
+			//----------------------------------------------------------------
+
+			class PickHelper {
+				constructor() {
+					this.raycaster = new THREE.Raycaster();
+					this.pickedObject = null;
+					this.pickedObjectSavedColor = 0;
+				}
+				pick(normalizedPosition, scene, camera, time) {
+					// restaura el color si hay un objeto seleccionado
+					if (this.pickedObject) {
+					this.pickedObject.material.emissive.setHex(0xffffff);
+					this.pickedObject = undefined;
+					}
+				
+					// lanza un rayo a través del tronco
+					this.raycaster.setFromCamera(normalizedPosition, camera);
+					// obtener la lista de objetos que el rayo interseccionó
+					const intersectedObjects = this.raycaster.intersectObjects(scene.children);
+					if (intersectedObjects.length) {
+					// elige el primer objeto. Es el mas cercano
+					this.pickedObject = intersectedObjects[0].object;
+					// guarda su color
+					this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
+					// establece su color emisivo en rojo / amarillo parpadeante
+					this.pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xff0000 : 0x0000ff);
+					}
+				}
+			}
+
+			const pickPosition = {x: 0, y: 0};
+			clearPickPosition();
+			
+			function getCanvasRelativePosition(event) {
+			const rect = canvas.getBoundingClientRect();
+			return {
+				x: (event.clientX - rect.left) * canvas.width  / rect.width,
+				y: (event.clientY - rect.top ) * canvas.height / rect.height,
+			};
+			}
+			
+			function setPickPosition(event) {
+			const pos = getCanvasRelativePosition(event);
+			pickPosition.x = (pos.x / canvas.width ) *  2 - 1;
+			pickPosition.y = (pos.y / canvas.height) * -2 + 1;  // nota que volteamos Y
+			}
+			
+			function clearPickPosition() {
+			// a diferencia del mouse que siempre tiene una posición
+			// si el usuario deja de tocar la pantalla que queremos
+			// para dejar de recolectar. Por ahora solo elegimos un valor
+			// es poco probable que elija algo
+			pickPosition.x = -100000;
+			pickPosition.y = -100000;
+			}
+			
+			window.addEventListener('mousemove', setPickPosition);
+			window.addEventListener('mouseout', clearPickPosition);
+			window.addEventListener('mouseleave', clearPickPosition);
+
+
+			//----------------------------------------------------------------
+			//setTimeout(function(){ alert("Hello"); }, 3000);
+
+			//Método que espera 2 segundos para cambiar el color de 4 bolas a rojo
+			setTimeout(function (){
+				//alert("Hello");
+				for ( let i = 0; i < 4; i ++ ) {
+					const object = room.children[ i ];
+					object.traverse( function (obj) {
+					if (obj.isMesh){
+						obj.material.color.set(0xFF0000);
+					}
+					} );
+				}
+			}, 2000);
+
+			//Después de 4 segundos pone las bolas de color amarillo nuevamente
+			setTimeout(function (){
+				//alert("Hello");
+				for ( let i = 0; i < 4; i ++ ) {
+					const object = room.children[ i ];
+					object.traverse( function (obj) {
+					if (obj.isMesh){
+						obj.material.color.set(0xffff8d);
+					}
+					} );
+				}
+				mov = true;
+			}, 6000);
+
+			setTimeout(function (){
+				mov = false;
+			}, 8000);
+			
+			function render(time) {
+				time *= 0.001;  // convertir a segundos;
+				const pickHelper = new PickHelper();
+				//handleController( controller1 );
+				//handleController( controller2 );
+
+				//
+				//Velocidad del movimiento
+				
+				const delta = clock.getDelta() * time; // slow down simulation
+				if(mov){
+					time = 0.5;
+					deltax = delta;
+					deltay = delta;
+					deltaz = delta;
+				}
+
+				const range = 3 - radius;
+
+				for ( let i = 0; i < room.children.length; i ++ ) {
+
+					const object = room.children[ i ];
+
+					object.position.x += object.userData.velocity.x * deltax;
+					object.position.y += object.userData.velocity.y * deltay;
+					object.position.z += object.userData.velocity.z * deltaz;
+
+					// keep objects inside room
+
+					if ( object.position.x < - range || object.position.x > range ) {
+						//clamp Fija el valor entre mínimo y máximo
+						object.position.x = THREE.MathUtils.clamp( object.position.x, - range, range );
+						object.userData.velocity.x = - object.userData.velocity.x;
+
+					}
+					
+					if (  object.position.y < radius || object.position.y > 6 ) { // condición piso
+
+						object.position.y =  object.position.y+radius; //Math.max( object.position.y, radius );
+
+						object.userData.velocity.x *= 1;
+						object.userData.velocity.y = - object.userData.velocity.y * 1;
+						object.userData.velocity.z *= 1;
+
+					}
+					
+
+					if ( object.position.z < - range || object.position.z > range ) {
+
+						object.position.z = THREE.MathUtils.clamp( object.position.z, - range, range );
+						object.userData.velocity.z = - object.userData.velocity.z;
+
+					}
+
+					for ( let j = i + 1; j < room.children.length; j ++ ) {
+
+						const object2 = room.children[ j ];
+
+						normal.copy( object.position ).sub( object2.position );
+
+						const distance = normal.length();
+
+						if ( distance < 2 * radius ) {
+
+							normal.multiplyScalar( 0.5 * distance - radius );
+
+							object.position.sub( normal );
+							object2.position.add( normal );
+
+							normal.normalize();
+
+							relativeVelocity.copy( object.userData.velocity ).sub( object2.userData.velocity );
+
+							normal = normal.multiplyScalar( relativeVelocity.dot( normal ) );
+
+							object.userData.velocity.sub( normal );
+							object2.userData.velocity.add( normal );
+
+						}
+
+					}
+
+					object.userData.velocity.y -= 10 * delta;
+
+				}
+
+				pickHelper.pick(pickPosition, scene, camera, time);
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
